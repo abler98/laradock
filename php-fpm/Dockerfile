@@ -978,6 +978,35 @@ RUN if [ ${INSTALL_XMLRPC} = true ]; then \
 ;fi
 
 ###########################################################################
+# H3:
+###########################################################################
+
+ARG INSTALL_H3=false
+
+RUN if [ ${INSTALL_H3} = true ]; then \
+    apt-get update && \
+    apt-get install -y git cmake && \
+    cd /usr/src && \
+    git clone -b master --depth=1 https://github.com/uber/h3.git && \
+    cd h3 && \
+    cmake -DBUILD_SHARED_LIBS=ON . && \
+    make -j "$(nproc)" && \
+    make install && \
+    cp /usr/local/lib/libh3.* /usr/lib/ && \
+    cd /usr/src && \
+    rm -rf h3 && \
+    git clone -b master --depth=1 https://github.com/neatlife/php-h3.git && \
+    cd php-h3 && \
+    phpize && \
+    ./configure && \
+    make -j "$(nproc)" && \
+    make install && \
+    cd /usr/src && \
+    rm -rf php-h3 && \
+    docker-php-ext-enable h3 \
+;fi
+
+###########################################################################
 # New Relic for PHP:
 ###########################################################################
 ARG NEW_RELIC=${NEW_RELIC}

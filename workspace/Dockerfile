@@ -1513,6 +1513,36 @@ RUN if [ ${INSTALL_PROTOC} = true ]; then \
 ;fi
 
 ###########################################################################
+# H3:
+###########################################################################
+
+ARG INSTALL_H3=false
+
+RUN if [ ${INSTALL_H3} = true ]; then \
+    apt-get update && \
+    apt-get install -y cmake && \
+    cd /usr/src && \
+    git clone -b master --depth=1 https://github.com/uber/h3.git && \
+    cd h3 && \
+    cmake -DBUILD_SHARED_LIBS=ON . && \
+    make -j4 && \
+    make install && \
+    cp /usr/local/lib/libh3.* /usr/lib/ && \
+    cd /usr/src && \
+    rm -rf h3 && \
+    git clone -b master --depth=1 https://github.com/neatlife/php-h3.git && \
+    cd php-h3 && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
+    cd /usr/src && \
+    rm -rf php-h3 && \
+    echo "extension=h3.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/h3.ini && \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/h3.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-h3.ini \
+;fi
+
+###########################################################################
 # Check PHP version:
 ###########################################################################
 
